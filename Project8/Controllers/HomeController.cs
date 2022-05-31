@@ -1,0 +1,161 @@
+﻿using Project8.Models.Data;
+using Project8.Models.Process;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using PagedList;
+using PagedList.Mvc;
+using System.Runtime;
+
+namespace Project8.Controllers
+{
+    public class HomeController : Controller
+    {
+        //Trang chủ chương trình
+
+        //Khởi tạo biến dữ liệu : db
+        BSDBContext db = new BSDBContext();
+
+        //GET : Home/ : trang chủ 
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        //GET : /Home/ShowCategory : hiển thị danh mục phía bên trái trang chủ
+        public ActionResult ShowCategory()
+        {
+            var result = new HomeProcess().ListCategory();
+            return PartialView(result);
+        }
+
+        public ActionResult ThemesBook(int id)
+        {
+            var tenloai = new AdminProcess().GetIdCategory(id);
+            ViewBag.TenLoai = tenloai.TenLoai;
+
+            var result = new BookProcess().ThemeBook(id);
+            return View(result);
+        }
+
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
+            return View();
+        }
+
+        public ActionResult QuyDinh()
+        {
+            return View();
+        }
+
+        public ActionResult Thanhtoan()
+        {
+            return View();
+        }
+        public ActionResult VanChuyen()
+        {
+            return View();
+        }
+        public ActionResult DoiTra()
+        {
+            return View();
+        }
+        public ActionResult Help()
+        {
+            return View();
+        }
+
+        //GET : /Home/Contact : trang liên hệ, phản hồi của khách hàng
+        [HttpGet]
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Chúng tôi rất hân hạnh lắng nghe ý kiến từ quý khách!";
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Contact(LienHe model)
+        {
+            if (ModelState.IsValid)
+            {
+                var home = new HomeProcess();
+                var lh = new LienHe();
+
+                lh.Ten = model.Ten;
+                lh.Ho = model.Ho;
+                lh.Email = model.Email;
+                lh.DienThoai = model.DienThoai;
+                lh.NoiDung = model.NoiDung;
+                lh.NgayCapNhat = DateTime.Now;
+
+                var result = home.InsertContact(lh);
+
+                if (result > 0)
+                {
+                    ViewBag.success = "Đã ghi nhận phản hồi của bạn";
+                    ModelState.Clear();
+                    return View();
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Lỗi ghi nhận");
+                }
+            }
+
+            return View(model);
+        }
+
+        //GET : /Home/SearchResult : trang tìm kiếm sách
+        [HttpGet]
+        public ActionResult SearchResult(int? page, string key)
+        {
+            ViewBag.Key = key;
+
+            //phân trang
+            int pageNumber = (page ?? 1);
+            int pageSize = 6;
+
+            var result = new HomeProcess().Search(key).ToPagedList(pageNumber, pageSize);
+
+            if (result.Count == 0 || key==null || key=="")
+            {
+                ViewBag.ThongBao = "Không tìm thấy sản phẩm nào";
+                return View(result);
+            }
+            ViewBag.ThongBao = "Hiện có " + result.Count + " kết quả ở trang này";
+
+            return View(result);
+        }
+
+        //POST : /Home/SearchResult : thực hiện việc tìm kiếm sách
+        [HttpPost]
+        public ActionResult SearchResult(int? page, FormCollection f)
+        {
+            //gán từ khóa tìm kiếm được nhập từ client
+            string key = f["txtSearch"].ToString();
+
+            ViewBag.Key = key;
+
+            //phân trang
+            int pageNumber = (page ?? 1);
+            int pageSize = 6;
+            
+            var result = new HomeProcess().Search(key).ToPagedList(pageNumber, pageSize);
+
+            if (result.Count == 0 || key == null || key == "")
+            {
+                ViewBag.ThongBao = "Không tìm thấy sản phẩm nào";
+                return View(result);
+            }
+            ViewBag.ThongBao = "Hiện có " + result.Count + " kết quả ở trang này";
+
+            return View(result);
+        }
+       
+      
+    }
+}

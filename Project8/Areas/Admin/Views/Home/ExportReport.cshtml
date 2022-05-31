@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Project8.Models.ExcelReportModel>
+@{
+    ViewBag.Title = "ExportReport";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+@using (Html.BeginForm("ExportToExcel", "Home", FormMethod.Post))
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Mã DDH</th>
+                <th scope="col">Ngày đặt</th>
+                <th scope="col">Tên sách</th>
+                <th scope="col">Số lượng</th>
+                <th scope="col">Đơn giá</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row">@item.MaDDH</th>
+                    <td>@item.NgayDat</td>
+                    <td>@item.TenSach</td>
+                    <td>@item.SoLuong</td>
+                    <td>@item.DonGia</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <input type="submit" value="Export to Excel" class="button" />
+
+}
+<script>
+//Chuyển dữ liệu qua dạng JSON
+var temp =  @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model,Newtonsoft.Json.Formatting.Indented))
+
+//In dữ liệu ra màn hình console của trình duyệt
+    console.log(temp)
+
+</script>
+

@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Project8.Models.ReportModel>
+@{
+    ViewBag.Title = "Report";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<h2>Report</h2>
+<button type="button" class="btn btn-primary" onclick="toggleDiagram()">Hiện chi tiết</button>
+<canvas id="myChart" class="report-container"></canvas>
+<div id="doanhThu" style="font-size:15px; font-weight:600; color:blue;">
+</div>
+<canvas id="myChart2" class="report-container"></canvas>
+<div id="LoiNhuan" style="font-size:15px; font-weight:600; color:blue;">
+</div>
+<canvas id="myChart3" class="report-container"></canvas>
+<style>
+    .report-container {
+        padding: 20px 0 20px 0;
+    }
+</style>
+
+<script>      
+    //Chuyển dữ liệu qua dạng JSON
+    var temp =  @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model,Newtonsoft.Json.Formatting.Indented))
+
+    //In dữ liệu ra màn hình console của trình duyệt
+        console.log(temp)
+
+    var dsMaSach = [];
+    var dsLuongTonKho = [];
+    var dsSoLuongban = [];
+    var dsLoiNhuan = [];
+    var tongLoiNhuan = 0;
+    var tongDoanhThu = 0;
+
+    for (item of temp) {
+        dsMaSach.push(item['TenSach'])
+        dsLuongTonKho.push(item['SoLuongTon'])
+        dsSoLuongban.push(item['SoLuongBan'])
+        dsLoiNhuan.push(item['LoiNhuan'])
+
+        tongLoiNhuan += item['LoiNhuan']
+        tongDoanhThu += item['DoanhThu']
+    }
+
+    document.getElementById("doanhThu").innerHTML = "Tổng doanh thu: " + tongDoanhThu.toString();
+    document.getElementById("LoiNhuan").innerHTML = "Tổng lợi nhuận: " + tongLoiNhuan.toString();
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: dsMaSach,
+            datasets: [{
+                label: 'Thống kê lượng tồn kho',
+                backgroundColor: 'rgb(0, 250, 255)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: dsLuongTonKho
+            }]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+
+    var ctx2 = document.getElementById('myChart2').getContext('2d');
+    var chart2 = new Chart(ctx2, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: dsMaSach,
+            datasets: [{
+                label: 'Thống kê lượng sách đã bán',
+                backgroundColor: 'rgb(0, 250, 255)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: dsSoLuongban
+            }]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+
+    var ctx3 = document.getElementById('myChart3').getContext('2d');
+    var chart3 = new Chart(ctx3, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: dsMaSach,
+            datasets: [{
+                label: 'Thống kê lợi nhuận của từng sách đã bán',
+                backgroundColor: 'rgb(0, 250, 255)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: dsLoiNhuan
+            }]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+
+</script>
